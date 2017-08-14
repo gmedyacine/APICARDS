@@ -15,7 +15,8 @@ $oderCards=$apiCards->excuteSortCards($cards);
 var_dump($oderCards); echo "<br>";
 
 echo "step 4: envoyer les cartes triées <br>";
-$apiCards->postSortedCards($oderCards);
+$resultPost=$apiCards->postSortedCards($oderCards);
+
 
 
 

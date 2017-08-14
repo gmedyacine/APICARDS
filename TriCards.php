@@ -12,9 +12,9 @@ class TriCards {
 
     protected $card;
     protected $url = array('get' => array('all-cards' => 'https://recrutement.local-trust.com/test/cards/57187b7c975adeb8520a283c'),
-        'post' => array('cards' => ''));
+        'post' => array('cards' => 'https://recrutement.local-trust.com/test/'));
     protected $date_test;
-
+    protected $exerciceId;
     protected $orderValue;
     protected $orderCateg;
     
@@ -36,14 +36,12 @@ class TriCards {
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $methode);
-        var_dump($params);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
         curl_setopt($curl, CURLOPT_PROXY, "");
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/x-www-form-urlencoded',
-            'Accept: application/json',
+           'Content-Type: application/json'
         ));
 
         $result = curl_exec($curl);
@@ -66,6 +64,7 @@ class TriCards {
         $url = $this->url['get']['all-cards'];
         $response = $this->creatResponse($methode, $url, $params);
         $data = $response->data;
+        $this->exerciceId=$response->exerciceId;
         $this->orderCateg=$data->categoryOrder;
         $this->orderValue=$data->valueOrder;
         foreach ($data->cards as $card) {
@@ -88,9 +87,14 @@ class TriCards {
 
     public function postSortedCards($cards) {
         $methode = 'POST';
-        $params = array('cards'=>$cards);
-        $url = $this->url['post']['cards'];
-        $this->creatResponse($methode, $url, $params);
+        $cardJson=array();
+        foreach ($cards as $card){
+            $cardsJson[]=$card->jsonRender();
+        }
+        $params = array('cards'=>$cardsJson);
+        $url = $this->url['post']['cards'].$this->exerciceId;
+        $resultPost=$this->creatResponse($methode, $url,json_encode($params));
+        return $resultPost;
     }
 
 }

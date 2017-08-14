@@ -31,6 +31,11 @@ class Card{
     function setValue($value) {
         $this->value = $value;
     }
+    
+     public function jsonRender()
+    {
+        return array('category'=> $this->category, 'value'=> $this->value);
+    }
 
 
 }
