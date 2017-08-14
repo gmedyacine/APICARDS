@@ -1,16 +1,23 @@
 <?php
+namespace APICARDS;
+
+require 'TriCards.php';
 
 echo "step 1: creation d'appel <br>";
 $apiCards=new TriCards();
 
-echo "step2: recuperer les cards <br>";
-$apicards->getCards();
+echo "step 2: recuperer les cards  non triées <br>";
+$cards=$apiCards->getCards();
+var_dump($cards); echo "<br>";
 
-echo "step3: trier les cartes <br>";
-$apicards->excuteSortCards();
+echo "step 3: trier les cartes cartes <br>";
+$oderCards=$apiCards->excuteSortCards($cards);
+var_dump($oderCards); echo "<br>";
 
-echo "step4: envoyer les cartes triées <br>";
-$apicards->postSortedCards();
+echo "step 4: envoyer les cartes triées <br>";
+$apiCards->postSortedCards($oderCards);
+
+
 
 
 

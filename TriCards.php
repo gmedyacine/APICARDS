@@ -1,19 +1,25 @@
 <?php
 
+namespace APICARDS;
+
 /**
  *  this class can request and sort the cards game
  *  @author gmedyacine
  */
+include 'Entites\Card.php';
+
 class TriCards {
 
     protected $card;
-    protected $url = array('get' => array('all-cards' => 'https://recrutement.local-trust.com/test/5991b15f975adeb8520a721b'),
+    protected $url = array('get' => array('all-cards' => 'https://recrutement.local-trust.com/test/cards/57187b7c975adeb8520a283c'),
         'post' => array('cards' => ''));
-
     protected $date_test;
+
+    protected $orderValue;
+    protected $orderCateg;
     
     public function __construct() {
-        $this->date_test= now();
+        $this->date_test = date("d.m.y");
     }
 
     /**
@@ -30,6 +36,7 @@ class TriCards {
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $methode);
+        var_dump($params);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
         curl_setopt($curl, CURLOPT_PROXY, "");
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -58,19 +65,31 @@ class TriCards {
         $params = array();
         $url = $this->url['get']['all-cards'];
         $response = $this->creatResponse($methode, $url, $params);
+        $data = $response->data;
+        $this->orderCateg=$data->categoryOrder;
+        $this->orderValue=$data->valueOrder;
+        foreach ($data->cards as $card) {
+            $cards[] = new Card($card->category,$card->value);
+        }
+       return $cards;  
     }
 
     public function excuteSortCards($cards) {
-        
-    }
+        usort($cards, function($a,$b){
+            // oreder with category
+            $cprCateg=strcmp(array_search($a->getCategory(),$this->orderCateg), array_search($b->getCategory(),$this->orderCateg)) ;
+            // oreder with with value 
+            $cprValue=strcmp(array_search($a->getValue(),$this->orderValue),array_search($b->getValue(),$this->orderValue)); 
+            // si l'ordre category egaux en passe à la valeur
+            return  $cprCateg!=0 ? $cprCateg : $cprValue;
+        });
+       return $cards; 
+        }
 
-    public function postSortedCards() {
-        $methode = 'GET';
-        $params = array();
+    public function postSortedCards($cards) {
+        $methode = 'POST';
+        $params = array('cards'=>$cards);
         $url = $this->url['post']['cards'];
-        $cards = $this->getCards();
-        $cardsSorted = $this->excuteSortCards($cards);
-        $params=array("cards"=>$cardsSorted);
         $this->creatResponse($methode, $url, $params);
     }
 
